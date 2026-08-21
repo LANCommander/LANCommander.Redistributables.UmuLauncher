@@ -1,0 +1,73 @@
+# Identity ---------------------------------------------------------------------
+#
+# Id and every GUID under Scripts are generated ONCE and must never change.
+#
+# RedistributableImporter matches an incoming record with
+#   r.Id == record.Id || r.Name == record.Name
+# so a regenerated GUID makes every published release import as a brand new
+# redistributable instead of updating the existing one.
+#
+# Id is additionally written out in CommandTemplate in Schema.Overlay.yml. The
+# launcher has no variable for a redistributable's own metadata directory, so the
+# path has to be spelled out. Change one and you must change the other.
+
+Id: ad007430-53e6-4f3c-a91b-a91dc54a10b9
+Name: umu-launcher
+
+# Name is upstream's own styling and is what the admin UI shows. The repository
+# is PascalCase to match its siblings, and RepositoryName is what release asset
+# filenames are built from -- without it, Name would be used verbatim.
+RepositoryName: UmuLauncher
+
+Description: >
+  Runs Windows games on Linux through Proton. umu-launcher is the standalone entry
+  point into Valve's Steam Linux Runtime, so a non-Steam game gets the same
+  container, the same Proton build and the same per-game fixes Steam applies to
+  its own library. Attach it to Windows-only games that Linux clients need to run.
+
+Notes: >
+  umu-launcher is (c) Open Wine Components and distributed under the GNU General
+  Public License v3.0. The upstream zipapp is redistributed unmodified. Requires
+  Python 3.10 or newer on the client. See LICENSES/NOTICE.md.
+
+LastKnownVersion: "1.4.4"
+
+# Payload ----------------------------------------------------------------------
+Source:
+  Mode: download
+  Resolver: github-release
+  Url: https://github.com/Open-Wine-Components/umu-launcher
+  # Every release carries seventeen .deb and .rpm packages built for specific
+  # distributions, and exactly one portable artefact.
+  AssetPattern: 'zipapp\.tar$'
+
+# Configuration ----------------------------------------------------------------
+#
+# umu-launcher reads no configuration file. It accepts a TOML file only when
+# passed --config, and everything else is environment variables, so there is
+# nothing here for a parser to find. Every option is written by hand in
+# Schema.Overlay.yml and materialised from it.
+ConfigPaths: []
+
+# Scripts ----------------------------------------------------------------------
+#
+# Platforms is set on every client-side script. umu-launcher is Linux-only and an
+# unset Platforms means "runs everywhere", which would let these run on a Windows
+# client and fail. Package is deliberately left unset: it runs on the server,
+# which may well be Windows.
+Scripts:
+  DetectInstall:
+    Id: 498bdd94-aaf5-4dd9-bc1c-945a700f6388
+    Platforms: Linux
+    Description: Checks whether the current umu-launcher build is already deployed for this game.
+  Install:
+    Id: df29ecb0-5038-455f-a09e-b55807b6f743
+    Platforms: Linux
+    Description: Restores the executable bit on the zipapp and verifies a usable Python is present.
+  Uninstall:
+    Id: b2e47c20-09a9-439a-9d7c-2dffee0ddd17
+    Platforms: Linux
+    Description: Removes the Wine prefix this shim created inside the game directory.
+  Package:
+    Id: 85620337-ae11-4514-ab21-62277e4de1a6
+    Description: Server-side updater that tracks this repository's releases.

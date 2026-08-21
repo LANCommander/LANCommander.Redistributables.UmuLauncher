@@ -1,0 +1,108 @@
+CommandTemplate: python3 "{InstallDir}/.lancommander/ad007430-53e6-4f3c-a91b-a91dc54a10b9/Files/umu-run" "{exe}" {args}
+GuestPlatforms: Windows
+DisplayName: Proton (umu)
+Options:
+  Game:
+    DisplayName: Game Identity
+    Description: How umu identifies this game when it looks up per-game Proton fixes.
+    Options:
+      GAMEID:
+        Type: string
+        DisplayName: umu Game ID
+        Description: |
+          Identifier umu uses to find per-game Proton fixes in its games database, for example umu-1091500. Leave it at umu-default for a game with no entry; a wrong id only means the wrong fixes are applied.
+        Default: umu-default
+        IsEnvironmentVariable: true
+      STORE:
+        Type: choice
+        DisplayName: Store
+        Description: |
+          Which storefront this copy came from. Only meaningful alongside a real umu Game ID, since the two together are what identify a title in the umu games database. Leave it empty for anything else.
+        IsEnvironmentVariable: true
+        Choices:
+        - Value: egs
+          DisplayName: Epic Games Store
+        - Value: gog
+          DisplayName: GOG
+        - Value: battlenet
+          DisplayName: Battle.net
+        - Value: amazon
+          DisplayName: Amazon Games
+        - Value: humble
+          DisplayName: Humble Bundle
+        - Value: itchio
+          DisplayName: itch.io
+        - Value: ubisoft
+          DisplayName: Ubisoft Connect
+      WINEPREFIX:
+        Type: string
+        DisplayName: Wine Prefix
+        Description: |
+          Directory holding the game's virtual Windows install: its registry, installed runtimes and anything it writes to its own C: drive. {InstallDir} is expanded at launch, so the default keeps one prefix per game inside the game's own directory, where the Uninstall script can clean it up again. Point several games at one path to share a prefix. Never blank it deliberately -- umu treats an explicitly empty prefix as a fatal error.
+        Default: '{InstallDir}/.umu'
+        IsEnvironmentVariable: true
+  Proton:
+    Description: Which Proton build runs the game, and how it is invoked.
+    Options:
+      PROTONPATH:
+        Type: string
+        DisplayName: Proton Build
+        Description: |
+          Absolute path to a Proton build, a version name such as GE-Proton9-5, or a codename such as GE-Proton or UMU-Proton for the latest of that line. Leave it empty and umu downloads and uses the newest UMU-Proton, which is the right answer for almost every game.
+        IsEnvironmentVariable: true
+      PROTON_VERB:
+        Type: choice
+        DisplayName: Proton Verb
+        Description: |
+          How Proton starts the executable. waitforexitandrun waits for any previous process in the prefix to exit first, and is what Steam itself uses. run skips that wait. runinprefix runs the executable inside the prefix without Proton's wrapper, which suits small helper programs. umu also accepts destroyprefix, getcompatpath and getnativepath, which are maintenance verbs that never launch a game and so are not offered here.
+        Default: waitforexitandrun
+        IsEnvironmentVariable: true
+        Choices:
+        - waitforexitandrun
+        - run
+        - runinprefix
+  Runtime:
+    Description: Steam Linux Runtime downloads and update behaviour.
+    Options:
+      UMU_RUNTIME_UPDATE:
+        Type: choice
+        DisplayName: Update the Runtime
+        Description: |
+          Whether umu checks for a newer Steam Linux Runtime on each launch. Turn it off for a LAN party on a poor connection, or to pin every client to the runtime they already have.
+        Default: "1"
+        IsEnvironmentVariable: true
+        Choices:
+        - Value: "1"
+          DisplayName: Update automatically
+        - Value: "0"
+          DisplayName: Never update
+      UMU_HTTP_TIMEOUT:
+        Type: int
+        DisplayName: Download Timeout
+        Description: |
+          Seconds umu waits on each HTTP request while fetching the runtime or a Proton build. 0 removes the timeout entirely, which means a dead mirror hangs the launch rather than failing it -- lower it instead of disabling it.
+        Default: "5"
+        IsEnvironmentVariable: true
+      UMU_HTTP_RETRIES:
+        Type: int
+        DisplayName: Download Retries
+        Description: |
+          How many times umu retries a failed download. 0 disables retrying, which makes a launch with no internet fail immediately instead of stalling.
+        Default: "3"
+        IsEnvironmentVariable: true
+  Diagnostics:
+    Options:
+      UMU_LOG:
+        Type: choice
+        DisplayName: Logging
+        Description: |
+          umu's own logging, written to the client log. Turn it on when a game will not start; Debug additionally logs the resolved environment and the exact Proton command line.
+        Default: "0"
+        IsEnvironmentVariable: true
+        Choices:
+        - Value: "0"
+          DisplayName: "Off"
+        - Value: "1"
+          DisplayName: "On"
+        - Value: debug
+          DisplayName: Debug
