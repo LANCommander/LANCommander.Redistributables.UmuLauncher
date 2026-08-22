@@ -28,7 +28,7 @@ Description: >
 Notes: >
   umu-launcher is (c) Open Wine Components and distributed under the GNU General
   Public License v3.0. The upstream zipapp is redistributed unmodified. Requires
-  Python 3.10 or newer on the client. See LICENSES/NOTICE.md.
+  Python 3.10 or newer on the client.
 
 LastKnownVersion: "1.4.4"
 
